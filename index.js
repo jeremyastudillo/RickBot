@@ -1,52 +1,80 @@
+
+const fs = require('fs');
 const Discord = require('discord.js');
 const { prefix, token } = require('./config.json');
+
 const client = new Discord.Client();
+client.commands = new Discord.Collection();
 
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
+for (const file of commandFiles) {
+	const command = require(`./commands/${file}`);
+	client.commands.set(command.name, command);
+}
 
-client.on ('ready',() => {
-    console.log('Ready and into the server');
+const cooldowns = new Discord.Collection();
+
+client.on('ready', () => {
+	console.log('Ready!');
 });
 
-client.on('message', message =>{
-    if (message.content === `${prefix}test`){
-        message.channel.send('`En linea y dentro del Servidor.`');
-    }
-})
+client.on('message', message => {
+	if (!message.content.startsWith(prefix) || message.author.bot) return;
 
+	const args = message.content.slice(prefix.length).split(/ +/);
+	const commandName = args.shift().toLowerCase();
 
+	const command = client.commands.get(commandName)
+		|| client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
+	if (!command) return;
 
-client.on('message', message =>{
-    if (message.content === `${prefix}server`){
-        let serverIcon = message.guild.iconURL;
-        const serverInfo = new Discord.RichEmbed()
-        .setDescription('Server Info')
-        .setColor('AQUA')
-        .setThumbnail(serverIcon)
-        .addField('Nombre del servidor:', message.guild.name)
-        .addField('Creado el:', message.guild.createdAt)
-        .addField('Usuarios:', message.guild.memberCount)
-        .addField('Region Actual:', message.guild.region)
-        message.channel.send({embed: serverInfo})
-    }
+	if (command.guildOnly && message.channel.type !== 'text') {
+		return message.reply('No puedo ejecutar ese comando en un DM');
+	}
+
+	if (command.args && !args.length) {
+		let reply = `Necesitas un argumento :rolling_eyes:, ${message.author}!`;
+
+		if (command.usage) {
+			reply += `\nEl uso correcto sería... \`${prefix}${command.name} ${command.usage}\``;
+		}
+
+		return message.channel.send(reply);
+	}
+
+	if (!cooldowns.has(command.name)) {
+		cooldowns.set(command.name, new Discord.Collection());
+	}
+
+	const now = Date.now();
+	const timestamps = cooldowns.get(command.name);
+	const cooldownAmount = (command.cooldown || 3) * 1000;
+
+	if (!timestamps.has(message.author.id)) {
+		timestamps.set(message.author.id, now);
+		setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+	}
+	else {
+		const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
+
+		if (now < expirationTime) {
+			const timeLeft = (expirationTime - now) / 1000;
+			return message.reply(`Espera ${timeLeft.toFixed(1)} segund(s) para volver a utilzar \`${command.name}\` comando.`);
+		}
+
+		timestamps.set(message.author.id, now);
+		setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+	}
+
+	try {
+		command.execute(message, args);
+	}
+	catch (error) {
+		console.error(error);
+		message.reply(':warning:Hay un error ejecutando este comando!:warning:');
+	}
 });
-
-client.on('message', message =>{
-    if (message.content === `${prefix}userinfo`){
-        let userIcon = message.author.avatarURL;
-        const userInfo = new Discord.RichEmbed()
-        .setDescription('User Info')
-        .setColor('RANDOM')
-        .setThumbnail(userIcon)
-        .addField('Nombre de usuario:', message.author.username)
-        .addField('Usuario Creado el:', message.author.createdAt)
-        .addField('Nitro:', message.author.premium)
-        .addField('Estado:', message.author.presence.status)
-        .addField('Jugando a:', message.author.presence.game.name)
-        message.channel.send({embed: userInfo})
-    }
-});
-
 
 client.login(token);
