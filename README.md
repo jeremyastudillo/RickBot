@@ -1,2 +1,2 @@
 # RickBot
-Discord bot
+Discord bot for personal Server
