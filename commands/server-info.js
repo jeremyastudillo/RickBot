@@ -10,9 +10,11 @@ module.exports = {
             .setColor('AQUA')
             .setThumbnail(serverIcon)
             .addField('Nombre del servidor:', message.guild.name)
+            .addField('Dueño actual del Server:', message.guild.owner)
             .addField('Creado el:', message.guild.createdAt)
             .addField('Usuarios:', message.guild.memberCount)
             .addField('Region Actual:', message.guild.region)
+            .addField('Te uniste al Servidor en:', message.guild.joinedAt)
             message.channel.send({embed: serverInfo})
     },
 
