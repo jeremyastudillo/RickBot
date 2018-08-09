@@ -1,7 +1,7 @@
-# Index 
-
-index.js
-
 # JSONFILES
 
 *.json
+
+# Node
+
+/node_modules
