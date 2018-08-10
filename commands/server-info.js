@@ -14,7 +14,6 @@ module.exports = {
             .addField('Creado el:', message.guild.createdAt)
             .addField('Usuarios:', message.guild.memberCount)
             .addField('Region Actual:', message.guild.region)
-            .addField('Te uniste al Servidor en:', message.guild.joinedAt)
             message.channel.send({embed: serverInfo})
     },
 
