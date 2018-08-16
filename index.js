@@ -16,8 +16,18 @@ for (const file of commandFiles) {
 const cooldowns = new Discord.Collection();
 
 client.on('ready', () => {
+	client.user.setStatus('online')
+	client.user.setPresence({
+		game: {
+			name: 'Chill 24/7',
+			type : 'STREAMING',
+			url: 'https://www.twitch.tv/monstercat'
+			
+		}
+	})
 	console.log('Ready!');
 });
+
 
 client.on('message', message => {
 	if (!message.content.startsWith(prefix) || message.author.bot) return;
@@ -76,5 +86,22 @@ client.on('message', message => {
 		message.reply(':warning:Hay un error ejecutando este comando!:warning:');
 	}
 });
+
+client.on('message', message => {
+	if (message.content === `${prefix}infobot`){
+		const iconBot = client.user.avatarURL
+		const botInfoEmbed = new Discord.RichEmbed()
+		.setColor('#4FF141')
+		.setTitle('GitHub')
+		.setURL('https://github.com/jeremyastudillo/RickBot')
+		.setDescription('**Info Comandos:** `$help`')
+		.setThumbnail(iconBot)
+		.addField('**Nombre:**', client.user.username)
+		.addField('**Creado el:**', client.user.createdAt)
+		
+		message.channel.send({ embed: botInfoEmbed });
+	}
+})
+
 
 client.login(token);
