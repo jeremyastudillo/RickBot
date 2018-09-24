@@ -71,7 +71,7 @@ client.on('message', message => {
 
 		if (now < expirationTime) {
 			const timeLeft = (expirationTime - now) / 1000;
-			return message.reply(`Espera ${timeLeft.toFixed(1)} segund(s) para volver a utilzar \`${command.name}\` comando.`);
+			return message.reply(`Espera ${timeLeft.toFixed(1)} segundo(s) para volver a utilzar \`${command.name}\` comando.`);
 		}
 
 		timestamps.set(message.author.id, now);
