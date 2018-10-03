@@ -21,7 +21,7 @@ client.on('ready', () => {
 		game: {
 			name: 'Chill 24/7',
 			type : 'STREAMING',
-			url: 'https://www.twitch.tv/monstercat'
+			url: 'https://www.twitch.tv/relaxbeats'
 			
 		}
 	})
