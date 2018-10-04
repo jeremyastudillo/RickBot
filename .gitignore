@@ -1,6 +1,6 @@
 # JSONFILES
 
-*.json
+config.json
 
 # Node
 
